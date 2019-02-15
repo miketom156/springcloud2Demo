@@ -1,0 +1,9 @@
+spring.application.name=spring-cloud-gateway
+server.port=8010
+zuul.ignoredPatterns=/admin/**
+zuul.routes.test.path:/test/**
+zuul.routes.test.serviceId: test-service-provider
+
+#test.path='' test.url='http://www.baidu.com'
+eureka.client.serviceUrl.defaultZone=http://127.0.0.1:8000/eureka/
+

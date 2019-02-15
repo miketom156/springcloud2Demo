@@ -1,0 +1,16 @@
+package com.springcloud.eam.test;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class NewGateWayApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ServiceGateWayApplication.class, args);
+	}
+
+	
+	
+}
+

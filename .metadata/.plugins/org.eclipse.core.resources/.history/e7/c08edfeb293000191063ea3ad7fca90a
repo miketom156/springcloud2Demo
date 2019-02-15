@@ -1,0 +1,8 @@
+package com.springcloud.eam.test.service;
+
+@FeignClient(name = "producer", fallback = ClassServiceFallback.class)
+public interface HelloService {
+	@RequestMapping(value = "/hello", method = RequestMethod.GET)
+	String hello();
+	
+}

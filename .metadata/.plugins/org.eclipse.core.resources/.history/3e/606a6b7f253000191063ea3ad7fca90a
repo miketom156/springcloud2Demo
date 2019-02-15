@@ -1,0 +1,12 @@
+package com.springcloud.eam.test.action;
+
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class HelloAction {
+	
+	public String hello(){
+		return "test-HelloAction";
+	}
+
+}

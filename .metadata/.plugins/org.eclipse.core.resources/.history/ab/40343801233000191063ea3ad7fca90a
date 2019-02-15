@@ -1,0 +1,6 @@
+package com.springcloud.eam.test.action;
+
+@Rest
+public class HelloAction {
+
+}

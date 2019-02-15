@@ -1,0 +1,131 @@
+<h1 id="springcloud-">springcloud使用指南</h1>
+<p> 本系统主要包含注册中心，服务提供者，服务消费者，路由网关几个子系统</p>
+<p><strong>注册中心</strong> </p>
+<blockquote>
+<p> 云端负载均衡，一个基于 REST 的服务，用于定位服务，以实现云端的负载均衡和中间层服务器的故障转移。他包含很多功能，Eureka支持服务动态扩容、缩容、失效剔除。</p>
+<blockquote>
+<p> Eureka提供了完整的Service Registry和Service Discovery实现，与现有Spring Cloud完美融合。</p>
+<blockquote>
+<p> <a href="http://img.blog.csdn.net/20161221133727612">注册中心原理图</a></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p> <strong>路由网关</strong> </p>
+<blockquote>
+<blockquote>
+<p>微服务架构中必须（integral ）的一部分，比如，“/” 可能映射到你的WEB程序上，”/api/users “可能映射到你的用户服务上，“/api/shop”可能映射到你的商品服务商。（注解：我理解这里的这几个映射就是说通过Zuul这个网关把服务映射到不同的服务商去处理，从而变成了微服务！</p>
+<blockquote>
+<p>Zuul是Netflix出品的一个基于JVM路由和服务端的负载均衡器.
+ Zuul功能：</p>
+<ul>
+<li>认证</li>
+<li>压力测试</li>
+<li>金丝雀测试</li>
+<li>动态路由</li>
+<li>负载削减</li>
+<li>安全</li>
+<li>静态响应处理</li>
+<li>主动/主动交换管理</li>
+</ul>
+</blockquote>
+</blockquote>
+</blockquote>
+<hr>
+<h2 id="-">注册中心配置</h2>
+<ol>
+<li>第一步引用jar包：
+&#39;&#39;&#39;  <dependency><pre><code>   &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+   &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-server&lt;/artifactId&gt;
+</code></pre>   </dependency> &#39;&#39;&#39;
+2.在application程序路口开启注解：@EnableEurekaServer
+3.配置application.properties文件：
+   spring.application.name=spring-cloud-service-center --服务名称
+   eureka.instance.hostname=localhost   --服务中心主机名
+  server.port=8000 --服务端口号
+  eureka.client.register-with-eureka=false --将本机服务注册到注册中心，关闭
+  eureka.client.fetch-registry=false---检修服务，关闭
+4.启动applictaion程序
+打开浏览器运行<a href="http://${eureka.instance.hostname}:${server.port}/，获得eureka监控面板，当前配置路径为http://localhost:8000/">http://${eureka.instance.hostname}:${server.port}/，获得eureka监控面板，当前配置路径为http://localhost:8000/</a></li>
+</ol>
+<h2 id="-">服务提供者配置</h2>
+<ol>
+<li>第一步引用jar包：
+&#39;&#39;&#39; <dependency><pre><code>   &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+   &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
+</code></pre>   </dependency>  &#39;&#39;&#39;
+2.在application程序路口开启注解：@EnableDiscoveryClient 启动服务自动注册与发现 功能
+3.配置application.properties文件：
+spring.application.name=test-service-provider --服务名称
+server.port=8001 --服务端口
+eureka.client.serviceUrl.defaultZone=<a href="http://127.0.0.1:8000/eureka/">http://127.0.0.1:8000/eureka/</a>  --注册中心地址
+4.启动applictaion程序</li>
+</ol>
+<h2 id="-">服务消费者</h2>
+<ol>
+<li>第一步引用jar包：
+&#39;&#39;&#39;  &lt;<dependency><pre><code>   &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+   &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
+</code></pre>   </dependency>
+  <dependency><pre><code>   &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+   &lt;artifactId&gt;spring-cloud-starter-openfeign&lt;/artifactId&gt;
+</code></pre>   </dependency>
+   <dependency><pre><code>   &lt;groupId&gt;com.netflix.hystrix&lt;/groupId&gt;
+   &lt;artifactId&gt;hystrix-javanica&lt;/artifactId&gt;
+</code></pre>   </dependency>
+&#39;&#39;&#39;
+2.在application程序路口开启注解：
+@EnableDiscoveryClient  --启动服务注册与发现
+@EnableFeignClients --启动feign客户端
+@EnableHystrix--启动熔断机制
+3.编写调用接口：
+  @FeignClient(name = &quot;test-service-provider&quot;, fallback = HelloServiceCallBack.class)
+public interface HelloService {<pre><code>@RequestMapping(value = &quot;/test/hello&quot;, method = RequestMethod.GET)
+</code></pre>String hello();
+}
+name:服务名称，fallback：熔断类，
+@RequestMapping(value = &quot;/test/hello&quot;,) value:服务中提供的接口
+4.熔断处理：
+@Component
+public class HelloServiceCallBack implements HelloService {
+@Override
+public String hello() {
+   // TODO Auto-generated method stub
+   return &quot;error-cirs&quot;;
+}</li>
+</ol>
+<p>}
+ 5.配置application.properties文件：
+        spring.application.name=test-service-consume --服务名
+        server.port=8005 --服务端口
+        eureka.client.serviceUrl.defaultZone=<a href="http://127.0.0.1:8000/eureka/">http://127.0.0.1:8000/eureka/</a>  --注册中心地址
+6.启动applictaion程序</p>
+<h2 id="-">路由网关</h2>
+<ol>
+<li>第一步引用jar包：
+&#39;&#39;&#39; <dependency><pre><code>   &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+   &lt;artifactId&gt;spring-cloud-starter-netflix-zuul&lt;/artifactId&gt;
+</code></pre>   </dependency>
+   <dependency><pre><code>   &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+   &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
+</code></pre>   </dependency> &#39;&#39;&#39;
+2.在application程序路口开启注解：@EnableZuulProxy--开启路由过滤，转发
+3.可以实现具体的filter extend ZuulFilter,进行相关权限，安全认证
+4.将filter交给spring窗口管理  @Bean 
+3.配置application.properties文件：
+ spring.application.name=spring-cloud-gateway  --服务名称
+ server.port=8010 --服务端口
+  zuul.ignoredPatterns=/admin/<strong> --忽略地址
+   zuul.routes.test.path=/test/</strong>  --路由转发
+   zuul.routes.test.stripPrefix=true<br>   zuul.routes.test.serviceId=test-service-consume --转发到的服务名称
+   test.ribbon.listOfServers=<a href="http://xxx/,http://xx2">http://xxx/,http://xx2</a> --指定机器的服务
+   ribbon.eureka.enabled=false--禁止eureka服务
+   zuul.routes.ba.path:/ba/**
+   zuul.routes.ba.url:<a href="http://www.baidu.com/">http://www.baidu.com/</a>  ---转发到具体url
+   eureka.client.serviceUrl.defaultZone=<a href="http://127.0.0.1:8000/eureka/">http://127.0.0.1:8000/eureka/</a>
+4.启动applictaion程序
+请求test/aa--&gt;请求服务名称为test-service-consume查找接口为aa的路径。
+参考文献：
+<a href="https://www.cnblogs.com/chry/p/7299844.html">https://www.cnblogs.com/chry/p/7299844.html</a>
+<a href="https://blog.csdn.net/u010473656/article/details/82350656">https://blog.csdn.net/u010473656/article/details/82350656</a>
+<a href="https://www.cnblogs.com/xd03122049/p/6036318.html">https://www.cnblogs.com/xd03122049/p/6036318.html</a></li>
+</ol>

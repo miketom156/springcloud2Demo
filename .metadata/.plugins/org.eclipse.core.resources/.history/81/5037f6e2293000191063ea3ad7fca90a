@@ -1,0 +1,6 @@
+package com.springcloud.eam.test.service;
+
+@FeignClient(name = "producer", fallback = ClassServiceFallback.class)
+public interface HelloService {
+
+}

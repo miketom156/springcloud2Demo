@@ -1,0 +1,11 @@
+package com.springcloud.eam.test.service;
+
+public class HelloServiceCallBack implements HelloService {
+
+	@Override
+	public String hello() {
+		// TODO Auto-generated method stub
+		return "erro-cirs";
+	}
+
+}
